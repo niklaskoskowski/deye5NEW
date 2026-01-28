@@ -6,7 +6,7 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - /app/data/projects/deye5NEW/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - mosquitto_data:/mosquitto/data
       - mosquitto_log:/mosquitto/log
 
@@ -14,19 +14,51 @@ services:
     image: ghcr.io/niklaskoskowski/deye-inverter-mqtt:2026.01.1
     container_name: deye-inverter-mqtt
     restart: unless-stopped
-    env_file:
-      - /app/data/projects/deye5NEW/config/deye.env
     depends_on:
       - mqtt
+    environment:
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LOG_STREAM: ${LOG_STREAM:-STDOUT}
+      TZ: ${TZ:-Europe/Berlin}
+
+      DEYE_LOGGER_IP_ADDRESS: ${DEYE_LOGGER_IP_ADDRESS}
+      DEYE_LOGGER_PORT: ${DEYE_LOGGER_PORT:-8899}
+      DEYE_LOGGER_SERIAL_NUMBER: ${DEYE_LOGGER_SERIAL_NUMBER}
+      DEYE_LOGGER_PROTOCOL: ${DEYE_LOGGER_PROTOCOL:-tcp}
+
+      DEYE_DATA_READ_INTERVAL: ${DEYE_DATA_READ_INTERVAL:-60}
+      DEYE_METRIC_GROUPS: ${DEYE_METRIC_GROUPS:-micro,settings_micro,deye_micro_systemtime}
+
+      MQTT_HOST: ${MQTT_HOST:-mqtt}
+      MQTT_PORT: ${MQTT_PORT:-1883}
+      MQTT_TOPIC_PREFIX: ${MQTT_TOPIC_PREFIX:-deye}
+
+      DEYE_FEATURE_MQTT_PUBLISHER: ${DEYE_FEATURE_MQTT_PUBLISHER:-true}
+      DEYE_PUBLISH_ON_CHANGE: ${DEYE_PUBLISH_ON_CHANGE:-true}
+      DEYE_PUBLISH_ON_CHANGE_MAX_INTERVAL: ${DEYE_PUBLISH_ON_CHANGE_MAX_INTERVAL:-360}
 
   mqtt_sql_forwarder:
     image: ghcr.io/niklaskoskowski/deye-mqtt-sql-forwarder:latest
     container_name: deye-mqtt-sql-forwarder
     restart: unless-stopped
-    env_file:
-      - /app/data/projects/deye5NEW/config/forwarder.env
     depends_on:
       - mqtt
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
+
+      MQTT_HOST: ${MQTT_HOST:-mqtt}
+      MQTT_PORT: ${MQTT_PORT:-1883}
+      MQTT_TOPIC_FILTER: ${MQTT_TOPIC_FILTER:-deye/#}
+
+      HTTP_ENDPOINT: ${HTTP_ENDPOINT}
+      HTTP_AUTH_HEADER_NAME: ${HTTP_AUTH_HEADER_NAME:-X-Auth-Token}
+      HTTP_AUTH_TOKEN: ${HTTP_AUTH_TOKEN}
+
+      SITE_ID: ${SITE_ID:-raspi-1}
+
+      BATCH_ENABLED: ${BATCH_ENABLED:-true}
+      BATCH_MAX_MESSAGES: ${BATCH_MAX_MESSAGES:-50}
+      BATCH_MAX_SECONDS: ${BATCH_MAX_SECONDS:-5}
 
 volumes:
   mosquitto_data:
