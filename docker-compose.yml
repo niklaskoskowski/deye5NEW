@@ -5,8 +5,8 @@ services:
     restart: unless-stopped
     ports:
       - "1883:1883"
-    volumes:
-      - ./config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+     volumes:
+      - /app/data/projects/deye5NEW/config:/mosquitto/config:ro
       - mosquitto_data:/mosquitto/data
       - mosquitto_log:/mosquitto/log
 
