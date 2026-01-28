@@ -6,7 +6,7 @@ services:
     ports:
       - "1883:1883"
     volumes:
-      - config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - /app/data/projects/deye5NEW/config/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
       - mosquitto_data:/mosquitto/data
       - mosquitto_log:/mosquitto/log
 
@@ -15,7 +15,7 @@ services:
     container_name: deye-inverter-mqtt
     restart: unless-stopped
     env_file:
-      - config/deye.env
+      - /app/data/projects/deye5NEW/config/deye.env
     depends_on:
       - mqtt
 
@@ -24,7 +24,7 @@ services:
     container_name: deye-mqtt-sql-forwarder
     restart: unless-stopped
     env_file:
-      - config/forwarder.env
+      - /app/data/projects/deye5NEW/config/forwarder.env
     depends_on:
       - mqtt
 
